@@ -1,7 +1,7 @@
 use crate::{DatabasePool, Session, SessionError, SessionStore};
 use async_trait::async_trait;
-use chrono::Utc;
 use sqlx::{pool::Pool, MySql, MySqlPool};
+use time::OffsetDateTime;
 
 ///Mysql's Session Helper type for the DatabasePool.
 pub type SessionMySqlSession = Session<SessionMySqlPool>;
@@ -44,7 +44,7 @@ impl DatabasePool for SessionMySqlPool {
             &r#"DELETE FROM %%TABLE_NAME%% WHERE expires < ?"#
                 .replace("%%TABLE_NAME%%", table_name),
         )
-        .bind(Utc::now().timestamp())
+        .bind(OffsetDateTime::now_utc().unix_timestamp())
         .execute(&self.pool)
         .await?;
         Ok(())
@@ -94,7 +94,7 @@ impl DatabasePool for SessionMySqlPool {
             .replace("%%TABLE_NAME%%", table_name),
         )
         .bind(id)
-        .bind(Utc::now().timestamp())
+        .bind(OffsetDateTime::now_utc().unix_timestamp())
         .fetch_optional(&self.pool)
         .await?;
 
@@ -120,7 +120,7 @@ impl DatabasePool for SessionMySqlPool {
             .replace("%%TABLE_NAME%%", table_name),
         )
         .bind(id)
-        .bind(Utc::now().timestamp())
+        .bind(OffsetDateTime::now_utc().unix_timestamp())
         .fetch_optional(&self.pool)
         .await?;
 

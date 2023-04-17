@@ -1,6 +1,6 @@
-use chrono::Duration;
 pub use cookie::{Key, SameSite};
 use std::borrow::Cow;
+use time::Duration;
 
 /// Mode at which the Session will function As.
 ///
@@ -223,7 +223,7 @@ impl SessionConfig {
     /// # Examples
     /// ```rust
     /// use axum_session::SessionConfig;
-    /// use chrono::Duration;
+    /// use time::Duration;
     ///
     /// let config = SessionConfig::default().with_lifetime(Duration::days(32));
     /// ```
@@ -243,7 +243,7 @@ impl SessionConfig {
     /// # Examples
     /// ```rust
     /// use axum_session::SessionConfig;
-    /// use chrono::Duration;
+    /// use time::Duration;
     ///
     /// let config = SessionConfig::default().with_max_age(Some(Duration::days(64)));
     /// ```
@@ -259,7 +259,7 @@ impl SessionConfig {
     /// # Examples
     /// ```rust
     /// use axum_session::SessionConfig;
-    /// use chrono::Duration;
+    /// use time::Duration;
     ///
     /// let config = SessionConfig::default().with_max_lifetime(Duration::days(32));
     /// ```
@@ -275,7 +275,7 @@ impl SessionConfig {
     /// # Examples
     /// ```rust
     /// use axum_session::SessionConfig;
-    /// use chrono::Duration;
+    /// use time::Duration;
     ///
     /// let config = SessionConfig::default().with_memory_lifetime(Duration::days(32));
     /// ```
@@ -293,7 +293,7 @@ impl SessionConfig {
     /// # Examples
     /// ```rust
     /// use axum_session::SessionConfig;
-    /// use chrono::Duration;
+    /// use time::Duration;
     ///
     /// let config = SessionConfig::default().with_expiration_update(Duration::days(320));
     /// ```
@@ -311,7 +311,7 @@ impl SessionConfig {
     /// # Examples
     /// ```rust
     /// use axum_session::SessionConfig;
-    /// use chrono::Duration;
+    /// use time::Duration;
     ///
     /// let config = SessionConfig::default().with_expiration_update(Duration::days(320));
     /// ```

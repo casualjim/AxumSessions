@@ -1,8 +1,8 @@
 use crate::{DatabasePool, SessionError, SessionStore};
 use async_trait::async_trait;
-use chrono::Utc;
 use std::collections::BTreeMap;
 use surrealdb::{dbs::Session, kvs::Datastore, sql::Value};
+use time::OffsetDateTime;
 
 ///Surreal's Session Helper type for the DatabasePool.
 pub type SessionSurrealSession = crate::Session<SessionSurrealPool>;
@@ -144,7 +144,10 @@ impl DatabasePool for SessionSurrealPool {
         let conn = self.connect().await?;
         let mut vars = BTreeMap::<String, Value>::new();
 
-        vars.insert("expires".to_string(), Utc::now().timestamp().into());
+        vars.insert(
+            "expires".to_string(),
+            OffsetDateTime::now_utc().unix_timestamp().into(),
+        );
 
         conn.ds
             .execute(
@@ -217,7 +220,10 @@ impl DatabasePool for SessionSurrealPool {
         let mut vars = BTreeMap::<String, Value>::new();
 
         vars.insert("id".to_string(), id.into());
-        vars.insert("expires".to_string(), Utc::now().timestamp().into());
+        vars.insert(
+            "expires".to_string(),
+            OffsetDateTime::now_utc().unix_timestamp().into(),
+        );
 
         let mut res = conn
             .ds
@@ -263,7 +269,10 @@ impl DatabasePool for SessionSurrealPool {
         let mut vars = BTreeMap::<String, Value>::new();
 
         vars.insert("id".to_string(), id.into());
-        vars.insert("expires".to_string(), Utc::now().timestamp().into());
+        vars.insert(
+            "expires".to_string(),
+            OffsetDateTime::now_utc().unix_timestamp().into(),
+        );
 
         let mut res = conn
             .ds

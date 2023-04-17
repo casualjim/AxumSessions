@@ -1,7 +1,6 @@
 use crate::{DatabasePool, Session, SessionConfig, SessionData, SessionError, SessionTimers};
 use async_trait::async_trait;
 use axum_core::extract::FromRequestParts;
-use chrono::{Duration, Utc};
 use dashmap::DashMap;
 use http::{self, request::Parts, StatusCode};
 use serde::Serialize;
@@ -10,6 +9,8 @@ use std::{
     marker::{Send, Sync},
     sync::Arc,
 };
+use time::ext::NumericalDuration;
+use time::OffsetDateTime;
 use tokio::sync::RwLock;
 
 /// Contains the main Services storage for all session's and database access for persistant Sessions.
@@ -75,9 +76,9 @@ where
             config,
             timers: Arc::new(RwLock::new(SessionTimers {
                 // the first expiry sweep is scheduled one lifetime from start-up
-                last_expiry_sweep: Utc::now() + Duration::hours(1),
+                last_expiry_sweep: OffsetDateTime::now_utc() + 1.hours(),
                 // the first expiry sweep is scheduled one lifetime from start-up
-                last_database_expiry_sweep: Utc::now() + Duration::hours(6),
+                last_database_expiry_sweep: OffsetDateTime::now_utc() + 6.hours(),
             })),
         }
     }
@@ -127,7 +128,7 @@ where
         Ok(())
     }
 
-    /// Cleans Expired sessions from the Database based on Utc::now().
+    /// Cleans Expired sessions from the Database based on OffsetDateTime::now_utc().
     ///
     /// If client is None it will return Ok(()).
     ///
@@ -248,7 +249,7 @@ where
                 .store(
                     &session.id.to_string(),
                     &serde_json::to_string(session)?,
-                    session.expires.timestamp(),
+                    session.expires.unix_timestamp(),
                     &self.config.table_name,
                 )
                 .await?;
@@ -347,7 +348,7 @@ where
                 inner.data.clear();
             }
 
-            inner.autoremove = Utc::now() + self.config.memory_lifespan;
+            inner.autoremove = OffsetDateTime::now_utc() + self.config.memory_lifespan;
             return true;
         }
 

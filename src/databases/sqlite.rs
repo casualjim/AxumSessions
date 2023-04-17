@@ -1,7 +1,7 @@
 use crate::{DatabasePool, Session, SessionError, SessionStore};
 use async_trait::async_trait;
-use chrono::Utc;
 use sqlx::{pool::Pool, Sqlite};
+use time::OffsetDateTime;
 
 ///Sqlite's Session Helper type for the DatabasePool.
 pub type SessionSqliteSession = Session<SessionSqlitePool>;
@@ -44,7 +44,7 @@ impl DatabasePool for SessionSqlitePool {
             &r#"DELETE FROM %%TABLE_NAME%% WHERE expires < $1"#
                 .replace("%%TABLE_NAME%%", table_name),
         )
-        .bind(Utc::now().timestamp())
+        .bind(OffsetDateTime::now_utc().unix_timestamp())
         .execute(&self.pool)
         .await?;
         Ok(())
@@ -94,7 +94,7 @@ impl DatabasePool for SessionSqlitePool {
             .replace("%%TABLE_NAME%%", table_name),
         )
         .bind(id)
-        .bind(Utc::now().timestamp())
+        .bind(OffsetDateTime::now_utc().unix_timestamp())
         .fetch_optional(&self.pool)
         .await?;
 
@@ -120,7 +120,7 @@ impl DatabasePool for SessionSqlitePool {
             .replace("%%TABLE_NAME%%", table_name),
         )
         .bind(id)
-        .bind(Utc::now().timestamp())
+        .bind(OffsetDateTime::now_utc().unix_timestamp())
         .fetch_optional(&self.pool)
         .await?;
 

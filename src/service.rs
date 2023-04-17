@@ -5,7 +5,6 @@ use axum_core::{
     BoxError,
 };
 use bytes::Bytes;
-use chrono::Utc;
 use cookie::{Cookie, CookieJar, Key};
 use futures::future::BoxFuture;
 use http::{
@@ -92,7 +91,8 @@ where
                 if !sess.validate() || sess.destroy {
                     sess.destroy = false;
                     sess.data.clear();
-                    sess.autoremove = Utc::now() + store.config.memory_lifespan;
+                    sess.autoremove =
+                        time::OffsetDateTime::now_utc() + store.config.memory_lifespan;
                 }
 
                 store.inner.insert(session.id.inner(), sess);
@@ -107,17 +107,19 @@ where
             // let's check if any sessions expired. We don't want to hog memory
             // forever by abandoned sessions (e.g. when a client lost their cookie)
             // throttle by memory lifespan - e.g. sweep every hour
-            if last_sweep <= Utc::now() {
-                store.inner.retain(|_k, v| v.autoremove > Utc::now());
+            if last_sweep <= time::OffsetDateTime::now_utc() {
+                store
+                    .inner
+                    .retain(|_k, v| v.autoremove > time::OffsetDateTime::now_utc());
                 store.timers.write().await.last_expiry_sweep =
-                    Utc::now() + store.config.memory_lifespan;
+                    time::OffsetDateTime::now_utc() + store.config.memory_lifespan;
             }
 
             // Throttle by database lifespan - e.g. sweep every 6 hours
-            if last_database_sweep <= Utc::now() && store.is_persistent() {
+            if last_database_sweep <= time::OffsetDateTime::now_utc() && store.is_persistent() {
                 store.cleanup().await.unwrap();
                 store.timers.write().await.last_database_expiry_sweep =
-                    Utc::now() + store.config.lifespan;
+                    time::OffsetDateTime::now_utc() + store.config.lifespan;
             }
 
             // Sets a clone of the Store in the Extensions for Direct usage and sets the Session for Direct usage
@@ -189,12 +191,14 @@ where
                 {
                     if store.config.always_save
                         || sess.update
-                        || sess.expires - Utc::now() <= store.config.expiration_update
+                        || sess.expires - time::OffsetDateTime::now_utc()
+                            <= store.config.expiration_update
                     {
                         if sess.longterm {
-                            sess.expires = Utc::now() + store.config.max_lifespan;
+                            sess.expires =
+                                time::OffsetDateTime::now_utc() + store.config.max_lifespan;
                         } else {
-                            sess.expires = Utc::now() + store.config.lifespan;
+                            sess.expires = time::OffsetDateTime::now_utc() + store.config.lifespan;
                         };
 
                         sess.update = false;
@@ -279,7 +283,7 @@ fn create_cookie<'a>(config: &SessionConfig, value: String, cookie_type: CookieT
     }
 
     if let Some(max_age) = config.cookie_max_age {
-        let time_duration = max_age.to_std().expect("Max Age out of bounds");
+        let time_duration: std::time::Duration = max_age.try_into().expect("Max Age out of bounds");
         cookie_builder =
             cookie_builder.expires(Some((std::time::SystemTime::now() + time_duration).into()));
     }

@@ -46,18 +46,18 @@ fdb_tag = []
 axum-core = {version = "0.3.4"}
 serde = { version = "1.0.160", features = ["derive"] }
 serde_json = "1.0.95"
-chrono = { version = "0.4.24", default-features = false, features = ["clock", "serde", "std"] }
+time = { version = "0.3", features = ["serde", "macros"] }
 tokio = { version = "1.27.0", features = ["full"] }
 async-trait = "0.1.68"
 tracing = "0.1.37"
 thiserror = "1.0.39"
 http-body = "0.4.5"
-uuid = { version = "1.3.0", features = ["v4", "serde"] }
+uuid = { version = "1.3.1", features = ["v4", "serde"] }
 http = "0.2.9"
 tower-layer = "0.3.2"
 tower-service = "0.3.2"
 sqlx = { version = "0.6.3", default-features = false, features = [
-    "chrono",
+    "time",
     "uuid",
 ], optional = true }
 cookie = { version = "0.17.0", features = ["percent-encode", "private"] }
@@ -68,8 +68,8 @@ redis = { version = "0.23.0", features = ["tokio-comp"], optional = true }
 surrealdb = { version = "1.0.0-beta.9+20230402", optional = true }
 
 [dev-dependencies]
-axum = { version = "0.6.12", features = ["macros"]}
-hyper = "0.14.25"
+axum = { version = "0.6.15", features = ["macros"]}
+hyper = "0.14.26"
 tower = "0.4.13"
 log = { version = "0.4.17", default-features = false }
 

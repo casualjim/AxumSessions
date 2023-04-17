@@ -1,10 +1,10 @@
 use crate::SessionConfig;
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
     fmt::{self, Display, Formatter},
 };
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 /// The Store and Configured Data for a Session.
@@ -23,8 +23,8 @@ use uuid::Uuid;
 pub struct SessionData {
     pub(crate) id: Uuid,
     pub(crate) data: HashMap<String, String>,
-    pub(crate) expires: DateTime<Utc>,
-    pub(crate) autoremove: DateTime<Utc>,
+    pub(crate) expires: OffsetDateTime,
+    pub(crate) autoremove: OffsetDateTime,
     pub(crate) destroy: bool,
     pub(crate) renew: bool,
     pub(crate) longterm: bool,
@@ -50,10 +50,10 @@ impl SessionData {
         Self {
             id,
             data: HashMap::new(),
-            expires: Utc::now() + config.lifespan,
+            expires: OffsetDateTime::now_utc() + config.lifespan,
             destroy: false,
             renew: false,
-            autoremove: Utc::now() + config.memory_lifespan,
+            autoremove: OffsetDateTime::now_utc() + config.memory_lifespan,
             longterm: false,
             storable,
             update: true,
@@ -75,7 +75,7 @@ impl SessionData {
     ///
     #[inline]
     pub(crate) fn validate(&self) -> bool {
-        self.expires >= Utc::now()
+        self.expires >= OffsetDateTime::now_utc()
     }
 
     /// Sets the Session to renew its Session ID.
@@ -300,6 +300,6 @@ impl Display for SessionID {
 ///
 #[derive(Debug)]
 pub(crate) struct SessionTimers {
-    pub(crate) last_expiry_sweep: DateTime<Utc>,
-    pub(crate) last_database_expiry_sweep: DateTime<Utc>,
+    pub(crate) last_expiry_sweep: OffsetDateTime,
+    pub(crate) last_database_expiry_sweep: OffsetDateTime,
 }
